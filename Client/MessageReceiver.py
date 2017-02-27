@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from threading import Thread
 
+
 class MessageReceiver(Thread):
     """
     This is the message receiver class. The class inherits Thread, something that
@@ -13,7 +14,7 @@ class MessageReceiver(Thread):
         This method is executed when creating a new MessageReceiver object
         """
 
-        # Flag to run thread as a deamon
+        # Flag to run thread as a daemon
         self.daemon = True
 
         # TODO: Finish initialization of MessageReceiver

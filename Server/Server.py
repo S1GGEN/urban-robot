@@ -6,6 +6,7 @@ Variables and functions that must be used by all the ClientHandler objects
 must be written here (e.g. a dictionary for connected clients)
 """
 
+
 class ClientHandler(socketserver.BaseRequestHandler):
     """
     This is the ClientHandler class. Everytime a new client connects to the
@@ -28,6 +29,8 @@ class ClientHandler(socketserver.BaseRequestHandler):
             
             # TODO: Add handling of received payload from client
 
+            print(received_string)
+
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     """
@@ -46,7 +49,7 @@ if __name__ == "__main__":
     No alterations are necessary
     """
     HOST, PORT = 'localhost', 9998
-    print ('Server running...')
+    print('Server running...')
 
     # Set up and initiate the TCP server
     server = ThreadedTCPServer((HOST, PORT), ClientHandler)
