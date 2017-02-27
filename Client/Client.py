@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import socket
-from MessageReceiver import MessageReceiver
-from MessageParser import MessageParser
+#from MessageReceiver import MessageReceiver
+#from MessageParser import MessageParser
+
 
 class Client:
     """
@@ -12,10 +13,14 @@ class Client:
         """
         This method is run when creating a new Client object
         """
+        self.host = host
+        self.server_port = server_port
 
         # Set up the socket connection to the server
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        
+
+        self.connection.bind((host, server_port))
+
         # TODO: Finish init process with necessary code
         self.run()
 
@@ -25,14 +30,17 @@ class Client:
         
     def disconnect(self):
         # TODO: Handle disconnection
+        self.connection.close()
         pass
 
     def receive_message(self, message):
         # TODO: Handle incoming message
+        print(message)
         pass
 
     def send_payload(self, data):
         # TODO: Handle sending of a payload
+        self.connection.sendall(data.encode('utf-8'))
         pass
         
     # More methods may be needed!
