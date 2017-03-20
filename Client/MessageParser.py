@@ -9,8 +9,7 @@ class MessageParser():
             'info': self.parse_info,
             'message': self.parse_message,
             'history': self.parse_history
-            # More key:values pairs are needed
-
+            # More key:values pairs could be needed
         }
 
     def parse(self, payload):

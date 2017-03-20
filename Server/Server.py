@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
 import socketserver
 import json
+import datetime
 
 """
 Variables and functions that must be used by all the ClientHandler objects
 must be written here (e.g. a dictionary for connected clients)
 """
+connected_users = {}
+
+messages = {}
+
+help_text = "HERE IS SOME HELP: \n Available commands: \n login <username> \n message <message>"  # TODO: finalize help_text
 
 
 class ClientHandler(socketserver.BaseRequestHandler):
@@ -24,15 +30,77 @@ class ClientHandler(socketserver.BaseRequestHandler):
         self.port = self.client_address[1]
         self.connection = self.request
 
+        self.possible_requests = {
+            'login': self.login,
+            'logout': self.logout,
+            'msg': self.message,
+            'names': self.names,
+            'help': self.help,
+            'error': self.error
+            # More key:values pairs are needed
+
+        }
+
         # Loop that listens for messages from the client
         while True:
             received_string = self.connection.recv(4096)
-            # payload = json.loads(received_string.decode())
-            
+            payload = json.loads(received_string.decode())
             # TODO: Add handling of received payload from client
-
             if received_string != b'':
                 print(received_string)
+                self.choose_response(payload)
+
+    def choose_response(self, payload):
+        payload = json.loads(payload)
+
+        if payload['request'] in self.possible_requests:
+            return self.possible_requests[payload['request']](payload)
+        else:
+            raise ValueError("Invalid request")
+
+    def login(self, payload):
+        if payload['content'] in connected_users:
+            self.error('Username already in use!')
+        else:
+            user = {
+                'ip': self.ip,
+                'port': self.port
+            }
+            connected_users[payload['content']] = user
+            self.send_response('server', 'info', payload['content'] + ' logged in')
+
+    def logout(self, payload):
+        if payload['content'] in connected_users:
+            # TODO: Check if user is trying to log out someone else
+            del connected_users[payload['content']]
+        else:
+            self.error('Cannot log out, user is not logged in!')
+
+    def message(self, payload):
+        # TODO: Check if user is logged in, can't send message otherwise
+        self.send_response('username', 'message', payload['content'])
+
+    def names(self):
+        # TODO: Check if user is logged in, shouldn't be able to see names otherwise
+        self.send_response('server', 'info', 'conncected users: ' + str(connected_users.keys()))
+        pass
+
+    def help(self):
+        self.send_response('server', 'info', help_text)
+        pass
+
+    def error(self, error_message):
+        self.send_response('error', 'server', error_message)
+
+    def send_response(self, username, response_code, response_data):
+        response = {
+            'timestamp': datetime.datetime.utcnow(),
+            'sender': username,
+            'response': response_code,  # Should be 'error', 'info, 'message' or 'history'
+            'content': response_data
+        }
+        json_data = json.dumps(response)
+        self.connection.sendall(json_data)  # TODO: verifisere når client sin MessageReceiver er på plass
 
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
