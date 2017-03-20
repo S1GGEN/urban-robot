@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+    # -*- coding: utf-8 -*-
 from threading import Thread
 
 
@@ -13,16 +13,18 @@ class MessageReceiver(Thread):
         """
         This method is executed when creating a new MessageReceiver object
         """
-
+        Thread.__init__(self)
         # Flag to run thread as a daemon
         self.daemon = True
-
-        # TODO: Finish initialization of MessageReceiver
-
+        self.client = client
+        self.connection = connection
 
         # On message receive:
         #    client.receiveMessage(message)
 
     def run(self):
-        # TODO: Make MessageReceiver receive and handle payloads
-        pass
+        try:
+            message = self.connection.recv(4096).decode()
+            self.client.receive_message(self, message)
+        except Exception as e:
+            print(e)
