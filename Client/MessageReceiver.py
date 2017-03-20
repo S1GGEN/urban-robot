@@ -19,6 +19,10 @@ class MessageReceiver(Thread):
 
         # TODO: Finish initialization of MessageReceiver
 
+
+        # On message receive:
+        #    client.receiveMessage(message)
+
     def run(self):
         # TODO: Make MessageReceiver receive and handle payloads
         pass

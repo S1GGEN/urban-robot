@@ -23,16 +23,16 @@ class MessageParser():
             # Response not valid
 
     def parse_error(self, payload):
-        pass
+        return "error " + payload
 
     def parse_info(self, payload):
-        pass
+        return "some info " + payload
 
     def parse_message(self, payload):
-        pass
+        return "Sigurd said blablabla " + payload
 
     def parse_history(self, payload):
-        pass
+        return "History " + payload
     # Include more methods for handling the different responses...
 
 
