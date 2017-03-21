@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import socketserver
 import json
-import datetime
+import time
 
 """
 Variables and functions that must be used by all the ClientHandler objects
@@ -54,7 +54,6 @@ class ClientHandler(socketserver.BaseRequestHandler):
                     # TODO: Add handling of received payload from client
 
     def choose_response(self, payload):
-        payload = json.loads(payload)
 
         if payload['request'] in self.possible_requests:
             return self.possible_requests[payload['request']](payload)
@@ -83,12 +82,12 @@ class ClientHandler(socketserver.BaseRequestHandler):
         # TODO: Check if user is logged in, can't send message otherwise
         self.send_response('username', 'message', payload['content'])
 
-    def names(self):
+    def names(self, payload):
         # TODO: Check if user is logged in, shouldn't be able to see names otherwise
         self.send_response('server', 'info', 'conncected users: ' + str(connected_users.keys()))
         pass
 
-    def help(self):
+    def help(self, payload):
         self.send_response('server', 'info', help_text)
         pass
 
@@ -97,13 +96,13 @@ class ClientHandler(socketserver.BaseRequestHandler):
 
     def send_response(self, username, response_code, response_data):
         response = {
-            'timestamp': datetime.datetime.utcnow(),
+            'timestamp': time.time(),
             'sender': username,
             'response': response_code,  # Should be 'error', 'info, 'message' or 'history'
             'content': response_data
         }
         json_data = json.dumps(response)
-        self.connection.sendall(json_data)  # TODO: verifisere når client sin MessageReceiver er på plass
+        self.connection.sendall(json_data.encode('ascii'))  # TODO: verifisere når client sin MessageReceiver er på plass
 
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
