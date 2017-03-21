@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys
 import socket
 import json
 from MessageReceiver import MessageReceiver
@@ -41,18 +40,16 @@ class Client:
 
             request = input('Enter a request >> ')
 
-            if(request == 'login'):
+            if request == 'login':
                 self.login()
-            elif(request == 'logout'):
+            elif request == 'logout':
                 self.logout()
-            elif(request == 'msg'):
+            elif request == 'msg':
                 self.msg()
-            elif(request == 'names'):
+            elif request == 'names':
                 self.names()
-            elif(request == 'help'):
+            elif request == 'help':
                 self.help()
-            # elif(request == 'error'):  THE USER CAN'T REQUEST AN ERROR!
-            #    self.error()
             else:
                 # TODO : Do something here
                 print('U suck')
@@ -68,34 +65,22 @@ class Client:
         print(message)
         print(parsed_message)
 
-    # def send_payload(self, data):      REPLACED BY send_request
-    #    payload = json.dumps(data).encode('ascii')
-    #    self.connection.sendall(payload)
-
     def login(self):
         username = input('Enter username >> ')
         self.send_request('login', username)
-        # return {'request' : 'login', 'content' : username}
 
     def logout(self):
         self.send_request('logout', '')
-        # return{'request' : 'logout', 'content' : ''}
 
     def msg(self):
         message = input('Enter message >> ')
-        # return {'request' : 'msg', 'content' : message}
         self.send_request('msg', message)
 
     def names(self):
-        # return{'request' : 'names', 'content' : ''}
         self.send_request('names', '')
 
     def help(self):
-        # return{'request' : 'help', 'content' : ''}
         self.send_request('help', '')
-
-    # def error(self):
-    #   return{'request' : 'error', 'content' : ''}
 
     def send_request(self, request, content):
         response = {
