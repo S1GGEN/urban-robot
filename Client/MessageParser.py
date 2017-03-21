@@ -7,19 +7,24 @@ class MessageParser():
         self.possible_responses = {
             'error': self.parse_error,
             'info': self.parse_info,
-            'message': self.parse_message,
+            'msg': self.parse_message,
             'history': self.parse_history
             # More key:values pairs could be needed
         }
 
-    def parse(self, payload):
-        payload = json.loads(payload)
-
+    def parse(self, data):
+        try:
+            payload = json.loads(data)
+        except Exception as e:
+            return {
+                'title': 'Nothing in response',
+                'message': e
+            }
         if payload['response'] in self.possible_responses:
             return self.possible_responses[payload['response']](payload)
         else:
-            raise ValueError("Response not valid")
-            # Response not valid
+            print(payload['response'])
+
 
     def parse_error(self, payload):
         return "error " + payload

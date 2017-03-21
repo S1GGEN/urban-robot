@@ -71,7 +71,7 @@ class Client:
         print(parsed_message)
 
     def send_payload(self, data):
-        payload = json.dumps(data).encode()
+        payload = json.dumps(data).encode('ascii')
         self.connection.sendall(payload)
 
     def login(self):
@@ -79,7 +79,6 @@ class Client:
         return {'request' : 'login', 'content' : username}
 
     def logout(self):
-
         return{'request' : 'logout', 'content' : ''}
 
 
