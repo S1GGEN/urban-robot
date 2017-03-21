@@ -84,7 +84,7 @@ class Client:
 
     def msg(self):
         message = input('Enter message >> ')
-        return {'request' : 'login', 'content' : message}
+        return {'request' : 'msg', 'content' : message}
 
     def names(self):
         return{'request' : 'names', 'content' : ''}

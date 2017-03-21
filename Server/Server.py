@@ -109,7 +109,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
                 connected_users[username] = user
 
                 self.send_response('server', 'history', messages)
-                self.send_response('server', 'error', username + ' logged in')
+                self.send_response('server', 'info', username + ' logged in')
 
                 # DEBUG LOG:
                 print(username + " logged in")
@@ -156,11 +156,15 @@ class ClientHandler(socketserver.BaseRequestHandler):
         self.send_response('error', 'server', error_message)
 
     def validate_user(self):
+        # DEBUG LOG:
         print('VALIDATE_USER --------------------------------------------------------------------------')
+
         for user in connected_users.keys():
+            # DEBUG LOG:
             print('username: ' + user)
             print(str(connected_users[user]['ip']))
             print(str(connected_users[user]['port']))
+
             if self.ip == connected_users[user]['ip'] and self.port == connected_users[user]['port']:
                 return user
         return False
