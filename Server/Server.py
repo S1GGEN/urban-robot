@@ -35,28 +35,33 @@ class ClientHandler(socketserver.BaseRequestHandler):
             'logout': self.logout,
             'msg': self.message,
             'names': self.names,
-            'help': self.help,
-            'error': self.error
-            # More key:values pairs are needed
+            'help': self.help
+            # More key:values pairs may be needed (rooms etc)
+        }
 
+        self.possible_requests_with_arguments = {
+            'login': self.login,
+            'msg': self.message
         }
 
         # Loop that listens for messages from the client
         while True:
             received_string = self.connection.recv(4096)
-            if received_string != b'':
-                print(received_string)
+            if True:  # received_string != b'':
+                print('received: ' + str(received_string))
                 try:
                     payload = json.loads(received_string.decode())
                     self.choose_response(payload)
                 except json.decoder.JSONDecodeError:
                     print('Invalid JSON')
-                    # TODO: Add handling of received payload from client
 
     def choose_response(self, payload):
 
         if payload['request'] in self.possible_requests:
-            return self.possible_requests[payload['request']](payload)
+            if payload['request'] in self.possible_requests_with_arguments:
+                return self.possible_requests[payload['request']](payload)
+            else:
+                return self.possible_requests[payload['request']]()
         else:
             raise ValueError("Invalid request")
 
@@ -71,10 +76,10 @@ class ClientHandler(socketserver.BaseRequestHandler):
             connected_users[payload['content']] = user
             self.send_response('server', 'info', payload['content'] + ' logged in')
 
-    def logout(self, payload):
-        if payload['content'] in connected_users:
-            # TODO: Check if user is trying to log out someone else
-            del connected_users[payload['content']]
+    def logout(self):
+        username = 'user'  # TODO: Find user from ip and port
+        if username in connected_users:
+            del connected_users[username]
         else:
             self.error('Cannot log out, user is not logged in!')
 
@@ -82,12 +87,12 @@ class ClientHandler(socketserver.BaseRequestHandler):
         # TODO: Check if user is logged in, can't send message otherwise
         self.send_response('username', 'message', payload['content'])
 
-    def names(self, payload):
+    def names(self):
         # TODO: Check if user is logged in, shouldn't be able to see names otherwise
-        self.send_response('server', 'info', 'conncected users: ' + str(connected_users.keys()))
+        self.send_response('server', 'info', 'connected users: ' + str(connected_users.keys()))
         pass
 
-    def help(self, payload):
+    def help(self):
         self.send_response('server', 'info', help_text)
         pass
 
@@ -102,7 +107,8 @@ class ClientHandler(socketserver.BaseRequestHandler):
             'content': response_data
         }
         json_data = json.dumps(response)
-        self.connection.sendall(json_data.encode('ascii'))  # TODO: verifisere når client sin MessageReceiver er på plass
+        print('sending: ' + str(json_data))
+        self.connection.sendall(json_data.encode('ascii'))  # TODO: verifisere når Client/MessageReceiver er på plass
 
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
