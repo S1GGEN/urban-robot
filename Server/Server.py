@@ -7,6 +7,9 @@ import time
 Variables and functions that must be used by all the ClientHandler objects
 must be written here (e.g. a dictionary for connected clients)
 """
+
+connection_threads = []
+
 connected_users = {
     'Sigurd': {
         'ip': '127.0.0.1',
@@ -58,6 +61,8 @@ class ClientHandler(socketserver.BaseRequestHandler):
         self.ip = self.client_address[0]
         self.port = self.client_address[1]
         self.connection = self.request
+
+        connection_threads.append(self)
 
         self.possible_requests = {
             'login': self.login,
@@ -132,7 +137,9 @@ class ClientHandler(socketserver.BaseRequestHandler):
         username = self.validate_user()
         if username:
             messages.append({'timestamp': time.time(), 'sender': username, 'content': payload['content']})
-            self.send_response(username, 'message', payload['content'])
+            for thread in connection_threads:
+                if thread.validate_user():
+                    thread.send_response(username, 'message', payload['content'])
         else:
             self.error('You cannot send messages, as you are not logged in!')
 
