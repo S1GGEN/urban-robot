@@ -23,8 +23,9 @@ class MessageReceiver(Thread):
         #    client.receiveMessage(message)
 
     def run(self):
-        try:
-            message = self.connection.recv(4096).decode()
-            self.client.receive_message(self, message)
-        except Exception as e:
-            print(e)
+        while True:
+            try:
+                message = self.connection.recv(4096).decode()
+                self.client.receive_message(self, message)
+            except Exception as e:
+                print(e)
