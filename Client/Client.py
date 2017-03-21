@@ -21,24 +21,46 @@ class Client:
         # Set up the socket connection to the server
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        # self.connection.bind((self.host, self.server_port))
-
         # TODO: Finish init process with necessary code
+
         self.run()
 
     def run(self):
+
         # Initiate the connection to the server
         self.connection.connect((self.host, self.server_port))
 
         print("connected")
         # receiver = MessageReceiver(self, self.connection)
         # self.receive_message(self)
-        # self.disconnect()
+
+
+        while True:
+            print('Welcome to URACS blabalabla')
+
+            request = input('Enter a request >> ')
+
+            if(request == 'login'):
+                self.send_payload(self.login())
+            elif(request == 'logout'):
+                self.send_payload(self.logout())
+            elif(request == 'msg'):
+                self.send_payload(self.msg())
+            elif(request == 'names'):
+                self.send_payload(self.names())
+            elif(request == 'help'):
+                self.send_payload(self.help())
+            elif(request == 'error'):
+                self.send_payload(self.error())
+            else:
+                # TODO : Do something here
+                print('U suck')
+
+
 
     def disconnect(self):
         # TODO: Handle disconnection
         self.connection.close()
-        pass
 
     def receive_message(self, message):
         # TODO: Handle incoming message
@@ -46,19 +68,36 @@ class Client:
         parsed_message = MessageParser.parse(parser, message)
         print(message)
         print(parsed_message)
-        pass
 
     def send_payload(self, data):
-        # TODO: Handle sending of a payload
+        payload = json.dumps(data).encode()
+        self.connection.sendall(payload)
 
-        # payload = json.dumps(data).encode()
-        self.connection.sendall(data)
-        pass
-        
-    # More methods may be needed!
+    def login(self):
+        username = input('Enter username >> ')
+        return {'request' : 'login', 'content' : username}
+
+    def logout(self):
+
+        return{'request' : 'logout', 'content' : ''}
+
+
+    def msg(self):
+        message = input('Enter message >> ')
+        return {'request' : 'login', 'content' : message}
+
+    def names(self):
+        return{'request' : 'names', 'content' : ''}
+
+    def help(self):
+        return{'request' : 'help', 'content' : ''}
+
+    def error(self):
+        return{'request' : 'error', 'content' : ''}
 
 
 if __name__ == '__main__':
+
     """
     This is the main method and is executed when you type "python Client.py"
     in your terminal.
@@ -66,5 +105,5 @@ if __name__ == '__main__':
     No alterations are necessary
     """
     client = Client('localhost', 9998)
-    client.send_payload(b'csssd')
-    # client.connection.sendall(b'csssd')
+    #client.send_payload()
+    #client.connection.sendall(b'csssd')
