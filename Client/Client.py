@@ -31,12 +31,13 @@ class Client:
         self.connection.connect((self.host, self.server_port))
 
         print("connected")
-        # receiver = MessageReceiver(self, self.connection)
-        # self.receive_message(self)
 
+        self.message_receiver = MessageReceiver(self, self.connection)
+        self.message_receiver.start()
+
+        print('Welcome to URACS blabalabla')
 
         while True:
-            print('Welcome to URACS blabalabla')
 
             request = input('Enter a request >> ')
 

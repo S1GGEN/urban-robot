@@ -26,6 +26,6 @@ class MessageReceiver(Thread):
         while True:
             try:
                 message = self.connection.recv(4096).decode()
-                self.client.receive_message(self, message)
+                self.client.receive_message(message)
             except Exception as e:
                 print(e)
