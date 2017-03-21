@@ -104,6 +104,4 @@ if __name__ == '__main__':
 
     No alterations are necessary
     """
-    client = Client('localhost', 9998)
-    #client.send_payload()
-    #client.connection.sendall(b'csssd')
+    client = Client('localhost', 9999)

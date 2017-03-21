@@ -27,16 +27,16 @@ class MessageParser():
 
 
     def parse_error(self, payload):
-        return "error " + payload
+        return "ERROR: " + str(payload)
 
     def parse_info(self, payload):
-        return "some info " + payload
+        return "some info " + str(payload)
 
     def parse_message(self, payload):
-        return "Sigurd said blablabla " + payload
+        return "Sigurd said blablabla " + str(payload)
 
     def parse_history(self, payload):
-        return "History " + payload
+        return "History " + str(payload)
     # Include more methods for handling the different responses...
 
 

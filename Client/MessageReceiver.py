@@ -25,4 +25,9 @@ class MessageReceiver(Thread):
     def run(self):
         while True:
             message = self.connection.recv(4096).decode()
+
+            if not message:
+                print('Lost connection to server')
+                break
+
             self.client.receive_message(message)
