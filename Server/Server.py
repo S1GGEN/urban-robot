@@ -7,9 +7,38 @@ import time
 Variables and functions that must be used by all the ClientHandler objects
 must be written here (e.g. a dictionary for connected clients)
 """
-connected_users = {}
+connected_users = {
+    'Sigurd': {
+        'ip': '127.0.0.1',
+        'port': 133769
+    },
+    'Sigurd2': {
+        'ip': '127.0.0.1',
+        'port': 420420
+    },
+    'Sigurd3': {
+        'ip': '127.0.0.1',
+        'port': 691337
+    }
+}
 
-messages = []
+messages = [
+    {
+      "message": "message0",
+      "sender": "user0",
+      "timestamp": "1490105373.0190203"
+    },
+    {
+      "message": "message1",
+      "sender": "user1",
+      "timestamp": "1490105373.0190203"
+    },
+    {
+      "message": "message2",
+      "sender": "user2",
+      "timestamp": "1490105373.0190203"
+    }
+]
 
 help_text = "HERE IS SOME HELP: \n Available commands: \n login <username> \n message <message>"  # TODO: finalize help_text
 
@@ -47,8 +76,10 @@ class ClientHandler(socketserver.BaseRequestHandler):
         # Loop that listens for messages from the client
         while True:
             received_string = self.connection.recv(4096)
-            if True:  # received_string != b'':
+            if True:  # received_string != b'': TODO: Check if this really is useful at all
+                # DEBUG LOG:
                 print('received: ' + str(received_string))
+
                 try:
                     payload = json.loads(received_string.decode())
                     self.choose_response(payload)
@@ -66,30 +97,41 @@ class ClientHandler(socketserver.BaseRequestHandler):
             raise ValueError("Invalid request")
 
     def login(self, payload):
-        if payload['content'] in connected_users:
+        username = payload['content']
+        if username in connected_users:
             self.error('Username already in use!')
         else:
             user = {
                 'ip': self.ip,
                 'port': self.port
             }
-            connected_users[payload['content']] = user
-            self.send_response('server', 'info', payload['content'] + ' logged in')
+            connected_users[username] = user
+
+            self.send_response('server', 'history', messages)
+            self.send_response('server', 'error', username + ' logged in')
+
+            # DEBUG LOG:
+            print(username + " logged in")
+            print(str(connected_users))
 
     def logout(self):
-        username = 'user'  # TODO: Find user from ip and port
+        username = 'test_user'  # TODO: Find user from ip and port
         if username in connected_users:
             del connected_users[username]
         else:
             self.error('Cannot log out, user is not logged in!')
 
     def message(self, payload):
-        # TODO: Check if user is logged in, can't send message otherwise
-        self.send_response('username', 'message', payload['content'])
+        username = 'test_user'  # TODO: Find user from ip and port
+        messages.append({'timestamp': time.time(), 'sender': username, 'content': payload['content']})
+        self.send_response(username, 'message', payload['content'])
 
     def names(self):
         # TODO: Check if user is logged in, shouldn't be able to see names otherwise
-        self.send_response('server', 'info', 'connected users: ' + str(connected_users.keys()))
+        response_string = 'Connected users: \n'
+        for username in connected_users.keys():
+            response_string += username + '\n'
+        self.send_response('server', 'info', 'connected users: ' + response_string)
         pass
 
     def help(self):
@@ -107,8 +149,10 @@ class ClientHandler(socketserver.BaseRequestHandler):
             'content': response_data
         }
         json_data = json.dumps(response)
-        print('sending: ' + str(json_data))
         self.connection.sendall(json_data.encode('ascii'))  # TODO: verifisere når Client/MessageReceiver er på plass
+
+        # DEBUG LOG:
+        print('sending: ' + str(json_data))
 
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
