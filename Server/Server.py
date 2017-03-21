@@ -98,48 +98,72 @@ class ClientHandler(socketserver.BaseRequestHandler):
 
     def login(self, payload):
         username = payload['content']
-        if username in connected_users:
-            self.error('Username already in use!')
+        if not self.validate_user():
+            if username in connected_users:
+                self.error('Username already in use!')
+            else:
+                user = {
+                    'ip': self.ip,
+                    'port': self.port
+                }
+                connected_users[username] = user
+
+                self.send_response('server', 'history', messages)
+                self.send_response('server', 'error', username + ' logged in')
+
+                # DEBUG LOG:
+                print(username + " logged in")
+                print(str(connected_users))
         else:
-            user = {
-                'ip': self.ip,
-                'port': self.port
-            }
-            connected_users[username] = user
-
-            self.send_response('server', 'history', messages)
-            self.send_response('server', 'error', username + ' logged in')
-
-            # DEBUG LOG:
-            print(username + " logged in")
-            print(str(connected_users))
+            self.error('You are already logged in! \n Log out to log in with another username')
 
     def logout(self):
-        username = 'test_user'  # TODO: Find user from ip and port
+        username = self.validate_user()
         if username in connected_users:
             del connected_users[username]
+            self.send_response('server', 'info', username + " logged out")
+
+            # DEBUG LOG:
+            print(connected_users)
         else:
-            self.error('Cannot log out, user is not logged in!')
+            self.error('You cannot log out, as you are not logged in!!')  # TODO: will this ever be relevant?
 
     def message(self, payload):
-        username = 'test_user'  # TODO: Find user from ip and port
-        messages.append({'timestamp': time.time(), 'sender': username, 'content': payload['content']})
-        self.send_response(username, 'message', payload['content'])
+        username = self.validate_user()
+        if username:
+            messages.append({'timestamp': time.time(), 'sender': username, 'content': payload['content']})
+            self.send_response(username, 'message', payload['content'])
+        else:
+            self.error('You cannot send messages, as you are not logged in!')
 
     def names(self):
-        # TODO: Check if user is logged in, shouldn't be able to see names otherwise
-        response_string = 'Connected users: \n'
-        for username in connected_users.keys():
-            response_string += username + '\n'
-        self.send_response('server', 'info', 'connected users: ' + response_string)
-        pass
+        username = self.validate_user()
+
+        # DEBUG LOG:
+        print(username)
+        if username:
+            response_string = 'Connected users: \n'
+            for username in connected_users.keys():
+                response_string += username + '\n'
+            self.send_response('server', 'info', 'connected users: ' + response_string)
+        else:
+            self.error('You cannot see names, as you are not logged in!')
 
     def help(self):
         self.send_response('server', 'info', help_text)
-        pass
 
     def error(self, error_message):
         self.send_response('error', 'server', error_message)
+
+    def validate_user(self):
+        print('VALIDATE_USER --------------------------------------------------------------------------')
+        for user in connected_users.keys():
+            print('username: ' + user)
+            print(str(connected_users[user]['ip']))
+            print(str(connected_users[user]['port']))
+            if self.ip == connected_users[user]['ip'] and self.port == connected_users[user]['port']:
+                return user
+        return False
 
     def send_response(self, username, response_code, response_data):
         response = {
