@@ -9,7 +9,7 @@ must be written here (e.g. a dictionary for connected clients)
 """
 connected_users = {}
 
-messages = {}
+messages = []
 
 help_text = "HERE IS SOME HELP: \n Available commands: \n login <username> \n message <message>"  # TODO: finalize help_text
 
@@ -44,11 +44,14 @@ class ClientHandler(socketserver.BaseRequestHandler):
         # Loop that listens for messages from the client
         while True:
             received_string = self.connection.recv(4096)
-            payload = json.loads(received_string.decode())
-            # TODO: Add handling of received payload from client
             if received_string != b'':
                 print(received_string)
-                self.choose_response(payload)
+                try:
+                    payload = json.loads(received_string.decode())
+                    self.choose_response(payload)
+                except json.decoder.JSONDecodeError:
+                    print('Invalid JSON')
+                    # TODO: Add handling of received payload from client
 
     def choose_response(self, payload):
         payload = json.loads(payload)
