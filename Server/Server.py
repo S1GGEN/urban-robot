@@ -136,7 +136,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
         username = self.validate_user()
         if username:
             messages.append({'timestamp': time.time(), 'sender': username, 'content': payload['content']})
-            self.send_to_all(username, 'content', payload['content'])
+            self.send_to_all(username, 'message', payload['content'])
         else:
             self.error('You cannot send messages, as you are not logged in!')
 
