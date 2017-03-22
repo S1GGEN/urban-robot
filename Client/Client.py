@@ -44,7 +44,7 @@ class Client:
         while True:
             time.sleep(0.01)
 
-            request = input('\t>>> ').lower().lstrip().rstrip()
+            request = input('>>> ').lower().lstrip().rstrip()
             request_lower = request.lower()
 
             if re.search('^login((  *[^\s]+)|((\s)*(?!.)))', request_lower):
