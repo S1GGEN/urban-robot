@@ -97,4 +97,4 @@ if __name__ == '__main__':
 
     No alterations are necessary
     """
-    client = Client('localhost', 9999)  # TODO: Allow switching between servers
+    client = Client('192.168.43.128', 9999)  # TODO: Allow switching between servers
