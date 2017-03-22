@@ -2,9 +2,12 @@
 import socket
 import json
 import re
+import time
+import sys
 
 from MessageReceiver import MessageReceiver
 from MessageParser import MessageParser
+from MessageParser import bcolors
 
 
 class Client:
@@ -29,17 +32,19 @@ class Client:
         # Initiate the connection to the server
         self.connection.connect((self.host, self.server_port))
 
-        print("connected")
+        # print("connected")
 
         self.message_receiver = MessageReceiver(self, self.connection)
         self.message_receiver.start()
 
-        print('   Urban Robot Advanced Chat System')
-        print('   --------------------------------')
+        print(bcolors.HEADER + bcolors.BOLD + ' Urban Robot Advanced Chat System')
+        print(' --------------------------------' + bcolors.ENDC)
         self.help()
 
         while True:
-            request = input('').lower().lstrip().rstrip()
+            time.sleep(0.01)
+
+            request = input('\t>>> ').lower().lstrip().rstrip()
 
             if re.search('^login((  *[^\s]+)|((\s)*(?!.)))', request):
                 self.login(request[6:])
@@ -53,19 +58,19 @@ class Client:
                 self.help()
             else:
                 # TODO : Do something here
-                print('Invalid command')
+                print(bcolors.FAIL + '\tInvalid command!' + bcolors.ENDC)
                 self.help()
+
 
     def disconnect(self):
         # TODO: Handle disconnection
         self.connection.close()
 
     def receive_message(self, message):
-        # TODO: Handle incoming message
         parser = MessageParser()
         parsed_message = MessageParser.parse(parser, message)
         # print("--------- Received: " + str(message) + " ---------")
-        print(parsed_message)
+        print('\t' + parsed_message)
 
     def login(self, username):
         if username:  # Reasoning:    (message = '') would be asserted as False
@@ -95,7 +100,7 @@ class Client:
             'request': request,
             'content': content
         }
-        self.connection.sendall(json.dumps(response).encode('ascii'))
+        self.connection.sendall(json.dumps(response).encode('utf-8'))
 
 
 if __name__ == '__main__':
