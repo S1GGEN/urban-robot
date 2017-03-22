@@ -176,7 +176,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
             'content': response_data
         }
         json_data = json.dumps(response)
-        self.connection.sendall(json_data.encode('ascii'))  # TODO: verifisere når Client/MessageReceiver er på plass
+        self.connection.sendall(json_data.encode('utf-8'))  # TODO: verifisere når Client/MessageReceiver er på plass
 
         # DEBUG LOG:
         print('sending: ' + str(json_data))
@@ -198,7 +198,7 @@ if __name__ == "__main__":
 
     No alterations are necessary
     """
-    HOST, PORT = 'localhost', 7777
+    HOST, PORT = '0.0.0.0', 9999
     print('Server running...')
 
     # Set up and initiate the TCP server

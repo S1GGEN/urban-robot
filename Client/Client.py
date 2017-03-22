@@ -3,16 +3,18 @@ import socket
 import json
 from typing import re
 import atexit
+import time
+import sys
 
 from MessageReceiver import MessageReceiver
 from MessageParser import MessageParser
+from MessageParser import bcolors
 
 
 class Client:
     """
     This is the chat client class
     """
-    loggedIN = False
 
     def __init__(self, host, server_port):
         """
@@ -26,45 +28,53 @@ class Client:
 
         self.run()
 
+
     def run(self):
 
         # Initiate the connection to the server
         self.connection.connect((self.host, self.server_port))
 
-        print("connected")
+        #print("connected")
 
         self.message_receiver = MessageReceiver(self, self.connection)
         self.message_receiver.start()
 
-        print('   Urban Robot Advanced Chat System')
-        print('   --------------------------------')
+        print(bcolors.HEADER + bcolors.BOLD + ' Urban Robot Advanced Chat System')
+        print(' --------------------------------' + bcolors.ENDC)
         self.help()
 
         while True:
+            time.sleep(0.01)
 
-            request = input('')
+            if self.program_die:
+                break
 
-            if len(request.lower().split()) == 2 and request.lower().split()[0] == 'login':
-                self.loginSplit(request.lower().split()[1])
-            elif 'login' in request.lower():
-                self.login()
-            elif request.lower().strip() == 'logout':
-                self.logout()
+            command = input('\t>>> ')
 
+            splitted_command = command.lower().split()
+            stripped_command = command.lower().strip()
+            lstripped_command = command.lower().lstrip()
 
-            elif len(request.lower().split()) > 1 and request.lower().lstrip()[:3] == 'msg':
-                self.msgSplit(request.lower().lstrip()[3:])
+            no_content_commands=['logout', 'help', 'names']
 
-
-            elif 'msg' in request.lower():
-                self.msg()
-            elif request.lower().strip() == 'names':
-                self.names()
-            elif request.lower().strip() == 'help':
-                self.help()
+            if len(splitted_command) > 1:
+                if splitted_command[0] == 'login':
+                    self.send_request('login', splitted_command[1])
+                elif lstripped_command[:3] == 'msg':
+                    self.send_request('msg', lstripped_command[3:])
+                else:
+                    print(bcolors.FAIL + '\tInvalid command!' + bcolors.ENDC)
             else:
-                # TODO : Do something here
-                print('U suck')
+                if stripped_command in no_content_commands:
+                    self.send_request(command.lower(), '')
+                elif stripped_command == 'msg':
+                    message = input('\tEnter message >> ')
+                    self.send_request('msg', message)
+                elif stripped_command == 'login':
+                    username = input('\tEnter username >> ')
+                    self.send_request('login', username)
+                else:
+                    print(bcolors.FAIL + '\tInvalid command!' + bcolors.ENDC)
 
 
     def disconnect(self):
@@ -72,31 +82,10 @@ class Client:
         self.connection.close()
 
     def receive_message(self, message):
-        # TODO: Handle incoming message
         parser = MessageParser()
         parsed_message = MessageParser.parse(parser, message)
         # print("--------- Received: " + str(message) + " ---------")
-        print(parsed_message)
-
-    def login(self):
-        username = input('Enter username >> ')
-        self.send_request('login', username)
-
-    def loginSplit(self, username):
-        self.send_request('login', username)
-
-    def logout(self):
-        self.send_request('logout', '')
-
-    def msg(self):
-        message = input('Enter message >> ')
-        self.send_request('msg', message)
-
-    def msgSplit(self, message):
-        self.send_request('msg', message)
-
-    def names(self):
-        self.send_request('names', '')
+        print('\t' + parsed_message)
 
     def help(self):
         self.send_request('help', '')
@@ -106,7 +95,7 @@ class Client:
             'request': request,
             'content': content
         }
-        self.connection.sendall(json.dumps(response).encode('ascii'))
+        self.connection.sendall(json.dumps(response).encode('utf-8'))
 
 
 if __name__ == '__main__':
@@ -119,4 +108,5 @@ if __name__ == '__main__':
     No alterations are necessary
     """
 
-    client = Client('192.168.43.128', 9999  )  # TODO: Allow switching between servers
+    client = Client('localhost', 9999)  # TODO: Allow switching between servers
+

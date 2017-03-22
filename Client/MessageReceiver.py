@@ -1,5 +1,6 @@
     # -*- coding: utf-8 -*-
 from threading import Thread
+from MessageParser import bcolors
 
 
 class MessageReceiver(Thread):
@@ -27,7 +28,6 @@ class MessageReceiver(Thread):
             message = self.connection.recv(4096).decode()
 
             if not message:
-                print('Lost connection to server')
-                break
+                print(bcolors.FAIL + 'Lost connection to server' + bcolors.ENDC)
 
             self.client.receive_message(message)
