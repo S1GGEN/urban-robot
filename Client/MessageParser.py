@@ -23,19 +23,23 @@ class MessageParser():
         if payload['response'] in self.possible_responses:
             return self.possible_responses[payload['response']](payload)
         else:
+            print("ELSE?")
             print(payload['response'])
 
-
     def parse_error(self, payload):
-        return "ERROR: " + str(payload)
+        print("error")
+        return str(payload['timestamp']) + ": ERROR: " + str(payload['content'])
 
     def parse_info(self, payload):
-        return "some info " + str(payload)
+        print("info")
+        return str(payload['timestamp']) + ": " + str(payload['content'])
 
     def parse_message(self, payload):
-        return "Sigurd said blablabla " + str(payload)
+        print("msg")
+        return str(payload['timestamp']) + ": " + payload['user'] + ": " + payload['content']
 
     def parse_history(self, payload):
+        print("history")
         return "History " + str(payload)
     # Include more methods for handling the different responses...
 

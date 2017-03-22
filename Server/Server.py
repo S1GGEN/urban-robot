@@ -43,7 +43,7 @@ messages = [
     }
 ]
 
-help_text = "HERE IS SOME HELP: \n Available commands: \n login <username> \n message <message>"  # TODO: finalize help_text
+help_text = "\n HERE IS SOME HELP: \n Available commands: \n login <username> \n message <message>"  # TODO: finalize help_text
 
 
 class ClientHandler(socketserver.BaseRequestHandler):
@@ -113,8 +113,8 @@ class ClientHandler(socketserver.BaseRequestHandler):
                 }
                 connected_users[username] = user
 
+                self.send_to_all('server', 'info', username + ' logged in')
                 self.send_response('server', 'history', messages)
-                self.send_response('server', 'info', username + ' logged in')
 
                 # DEBUG LOG:
                 print(username + " logged in")
@@ -137,11 +137,14 @@ class ClientHandler(socketserver.BaseRequestHandler):
         username = self.validate_user()
         if username:
             messages.append({'timestamp': time.time(), 'sender': username, 'content': payload['content']})
-            for thread in connection_threads:
-                if thread.validate_user():
-                    thread.send_response(username, 'message', payload['content'])
+            self.send_to_all('server', 'info', payload['content'])
         else:
             self.error('You cannot send messages, as you are not logged in!')
+
+    def send_to_all(self, sender, type, content):
+        for thread in connection_threads:
+            if thread.validate_user():
+                thread.send_response(sender, type, content)
 
     def names(self):
         username = self.validate_user()
@@ -152,7 +155,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
             response_string = 'Connected users: \n'
             for username in connected_users.keys():
                 response_string += username + '\n'
-            self.send_response('server', 'info', 'connected users: ' + response_string)
+            self.send_response('server', 'info', response_string)
         else:
             self.error('You cannot see names, as you are not logged in!')
 
@@ -160,7 +163,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
         self.send_response('server', 'info', help_text)
 
     def error(self, error_message):
-        self.send_response('error', 'server', error_message)
+        self.send_response('server', 'error', error_message)
 
     def validate_user(self):
         # DEBUG LOG:
