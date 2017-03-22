@@ -117,7 +117,6 @@ class ClientHandler(socketserver.BaseRequestHandler):
                 self.send_response('server', 'history', messages)
 
                 # DEBUG LOG:
-                print(username + " logged in")
                 print(str(connected_users))
         else:
             self.error('You are already logged in! \n Log out to log in with another username')
@@ -149,8 +148,6 @@ class ClientHandler(socketserver.BaseRequestHandler):
     def names(self):
         username = self.validate_user()
 
-        # DEBUG LOG:
-        print(username)
         if username:
             response_string = 'Connected users: \n'
             for username in connected_users.keys():
@@ -166,15 +163,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
         self.send_response('server', 'error', error_message)
 
     def validate_user(self):
-        # DEBUG LOG:
-        print('VALIDATE_USER --------------------------------------------------------------------------')
-
         for user in connected_users.keys():
-            # DEBUG LOG:
-            print('username: ' + user)
-            print(str(connected_users[user]['ip']))
-            print(str(connected_users[user]['port']))
-
             if self.ip == connected_users[user]['ip'] and self.port == connected_users[user]['port']:
                 return user
         return False
