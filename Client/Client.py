@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import socket
 import json
+from typing import re
+import atexit
+
 from MessageReceiver import MessageReceiver
 from MessageParser import MessageParser
 
@@ -9,6 +12,7 @@ class Client:
     """
     This is the chat client class
     """
+    loggedIN = False
 
     def __init__(self, host, server_port):
         """
@@ -19,8 +23,6 @@ class Client:
 
         # Set up the socket connection to the server
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        # TODO: Finish init process with necessary code
 
         self.run()
 
@@ -34,25 +36,36 @@ class Client:
         self.message_receiver = MessageReceiver(self, self.connection)
         self.message_receiver.start()
 
-        print('Welcome to URACS blabalabla')
+        print('   Urban Robot Advanced Chat System')
+        print('   --------------------------------')
+        self.help()
 
         while True:
 
-            request = input('Enter a request >> ')
+            request = input('')
 
-            if request == 'login':
+            if len(request.lower().split()) == 2 and request.lower().split()[0] == 'login':
+                self.loginSplit(request.lower().split()[1])
+            elif 'login' in request.lower():
                 self.login()
-            elif request == 'logout':
+            elif request.lower().strip() == 'logout':
                 self.logout()
-            elif request == 'msg':
+
+
+            elif len(request.lower().split()) > 1 and request.lower().lstrip()[:3] == 'msg':
+                self.msgSplit(request.lower().lstrip()[3:])
+
+
+            elif 'msg' in request.lower():
                 self.msg()
-            elif request == 'names':
+            elif request.lower().strip() == 'names':
                 self.names()
-            elif request == 'help':
+            elif request.lower().strip() == 'help':
                 self.help()
             else:
                 # TODO : Do something here
                 print('U suck')
+
 
     def disconnect(self):
         # TODO: Handle disconnection
@@ -69,11 +82,17 @@ class Client:
         username = input('Enter username >> ')
         self.send_request('login', username)
 
+    def loginSplit(self, username):
+        self.send_request('login', username)
+
     def logout(self):
         self.send_request('logout', '')
 
     def msg(self):
         message = input('Enter message >> ')
+        self.send_request('msg', message)
+
+    def msgSplit(self, message):
         self.send_request('msg', message)
 
     def names(self):
@@ -89,7 +108,13 @@ class Client:
         }
         self.connection.sendall(json.dumps(response).encode('ascii'))
 
+    @atexit.register
+    def baibai(self):
+        print("ded")
+        self.disconnect()
+
 if __name__ == '__main__':
+
 
     """
     This is the main method and is executed when you type "python Client.py"
@@ -97,4 +122,5 @@ if __name__ == '__main__':
 
     No alterations are necessary
     """
-    client = Client('192.168.43.128', 9999)  # TODO: Allow switching between servers
+
+    client = Client('localhost', 7777)  # TODO: Allow switching between servers

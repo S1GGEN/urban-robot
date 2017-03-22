@@ -18,7 +18,8 @@ class MessageParser():
         except Exception as e:
             return {
                 'title': 'Nothing in response',
-                'message': e
+                'message': e,
+                'data': data
             }
         if payload['response'] in self.possible_responses:
             return self.possible_responses[payload['response']](payload)
@@ -36,11 +37,14 @@ class MessageParser():
 
     def parse_message(self, payload):
         # print("msg")
-        return str(payload['timestamp']) + ": " + payload['sender'] + ": " + payload['content']
+        return payload['timestamp'] + ": " + payload['sender'] + ": " + payload['content']
 
     def parse_history(self, payload):
         # print("history")
-        return "History " + str(payload)
+        history_string = ""
+        for message in payload:
+            history_string += "\n" + self.parse_message(message)
+        return history_string
     # Include more methods for handling the different responses...
 
 

@@ -81,7 +81,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
         # Loop that listens for messages from the client
         while True:
             received_string = self.connection.recv(4096)
-            if True:  # received_string != b'': TODO: Check if this really is useful at all
+            if received_string != b'':  # TODO: Check if this really is useful at all
                 # DEBUG LOG:
                 print('received: ' + str(received_string))
 
@@ -136,7 +136,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
         username = self.validate_user()
         if username:
             messages.append({'timestamp': time.time(), 'sender': username, 'content': payload['content']})
-            self.send_to_all(username, 'message', payload['content'])
+            self.send_to_all(username, 'content', payload['content'])
         else:
             self.error('You cannot send messages, as you are not logged in!')
 
@@ -198,7 +198,7 @@ if __name__ == "__main__":
 
     No alterations are necessary
     """
-    HOST, PORT = '192.168.43.128', 9999
+    HOST, PORT = 'localhost', 7777
     print('Server running...')
 
     # Set up and initiate the TCP server
