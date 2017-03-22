@@ -61,7 +61,6 @@ class Client:
                 print(bcolors.FAIL + '\tInvalid command!' + bcolors.ENDC)
                 self.help()
 
-
     def disconnect(self):
         # TODO: Handle disconnection
         self.connection.close()

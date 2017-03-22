@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import socketserver
 import json
-import time
-
+import datetime
 """
 Variables and functions that must be used by all the ClientHandler objects
 must be written here (e.g. a dictionary for connected clients)
@@ -135,7 +134,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
     def message(self, payload):
         username = self.validate_user()
         if username:
-            messages.append({'timestamp': time.time(), 'sender': username, 'content': payload['content']})
+            messages.append({'timestamp': str(datetime.datetime.today())[:-7], 'sender': username, 'content': payload['content']})
             self.send_to_all(username, 'message', payload['content'])
         else:
             self.error('You cannot send messages, as you are not logged in!')
@@ -170,7 +169,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
 
     def send_response(self, username, response_code, response_data):
         response = {
-            'timestamp': time.time(),
+            'timestamp': str(datetime.datetime.today())[:-7],
             'sender': username,
             'response': response_code,  # Should be 'error', 'info, 'message' or 'history'
             'content': response_data
@@ -204,6 +203,7 @@ if __name__ == "__main__":
 
     No alterations are necessary
     """
+
     HOST, PORT = 'localhost', 9998
     print('Server running...')
 
