@@ -124,8 +124,8 @@ class ClientHandler(socketserver.BaseRequestHandler):
     def logout(self):
         username = self.validate_user()
         if username in connected_users:
+            self.send_to_all('server', 'info', username + ' logged out')
             del connected_users[username]
-            self.send_response('server', 'info', username + " logged out")
 
             # DEBUG LOG:
             print(connected_users)

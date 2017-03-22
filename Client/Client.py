@@ -62,7 +62,7 @@ class Client:
         # TODO: Handle incoming message
         parser = MessageParser()
         parsed_message = MessageParser.parse(parser, message)
-        print(message)
+        # print("--------- Received: " + str(message) + " ---------")
         print(parsed_message)
 
     def login(self):
@@ -97,4 +97,4 @@ if __name__ == '__main__':
 
     No alterations are necessary
     """
-    client = Client('localhost', 9999)
+    client = Client('localhost', 9999)  # TODO: Allow switching between servers

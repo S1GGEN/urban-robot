@@ -27,19 +27,19 @@ class MessageParser():
             print(payload['response'])
 
     def parse_error(self, payload):
-        print("error")
+        # print("error")
         return str(payload['timestamp']) + ": ERROR: " + str(payload['content'])
 
     def parse_info(self, payload):
-        print("info")
+        # print("info")
         return str(payload['timestamp']) + ": " + str(payload['content'])
 
     def parse_message(self, payload):
-        print("msg")
+        # print("msg")
         return str(payload['timestamp']) + ": " + payload['user'] + ": " + payload['content']
 
     def parse_history(self, payload):
-        print("history")
+        # print("history")
         return "History " + str(payload)
     # Include more methods for handling the different responses...
 
