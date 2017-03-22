@@ -36,7 +36,7 @@ class MessageParser():
 
     def parse_message(self, payload):
         # print("msg")
-        return str(payload['timestamp']) + ": " + payload['user'] + ": " + payload['content']
+        return str(payload['timestamp']) + ": " + payload['sender'] + ": " + payload['content']
 
     def parse_history(self, payload):
         # print("history")
