@@ -176,7 +176,13 @@ class ClientHandler(socketserver.BaseRequestHandler):
             'content': response_data
         }
         json_data = json.dumps(response)
-        self.connection.sendall(json_data.encode('ascii'))  # TODO: verifisere når Client/MessageReceiver er på plass
+
+        try:
+            self.connection.sendall(json_data.encode('ascii'))
+        except OSError as e:
+            print(e)
+            print("Connection dead, removing from connection_threads!")
+            connection_threads.remove(self)
 
         # DEBUG LOG:
         print('sending: ' + str(json_data))
@@ -198,7 +204,7 @@ if __name__ == "__main__":
 
     No alterations are necessary
     """
-    HOST, PORT = 'localhost', 7777
+    HOST, PORT = 'localhost', 9998
     print('Server running...')
 
     # Set up and initiate the TCP server
