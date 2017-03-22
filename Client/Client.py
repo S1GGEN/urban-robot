@@ -45,16 +45,17 @@ class Client:
             time.sleep(0.01)
 
             request = input('\t>>> ').lower().lstrip().rstrip()
+            request_lower = request.lower()
 
-            if re.search('^login((  *[^\s]+)|((\s)*(?!.)))', request):
-                self.login(request[6:])
-            elif request == 'logout':
+            if re.search('^login((  *[^\s]+)|((\s)*(?!.)))', request_lower):
+                self.login(request[6:].lstrip())
+            elif request_lower == 'logout':
                 self.logout()
-            elif re.search('^msg((  *[^\s]+)|((\s)*(?!.)))', request):
-                self.msg(request[4:])
-            elif request == 'names':
+            elif re.search('^msg((  *[^\s]+)|((\s)*(?!.)))', request_lower):
+                self.msg(request[4:].lstrip())
+            elif request_lower == 'names':
                 self.names()
-            elif request == 'help':
+            elif request_lower == 'help':
                 self.help()
             else:
                 # TODO : Do something here
