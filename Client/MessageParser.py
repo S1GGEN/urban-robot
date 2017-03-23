@@ -9,6 +9,7 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+    WHITE = '\033[37m'
 
 class MessageParser():
     def __init__(self):
@@ -33,25 +34,22 @@ class MessageParser():
         if payload['response'] in self.possible_responses:
             return self.possible_responses[payload['response']](payload)
         else:
-            print("ELSE?")
+            print('ELSE?')
             print(payload['response'])
 
     def parse_error(self, payload):
-        # print("error")
-        return str(payload['timestamp']) + bcolors.FAIL + ": ERROR: " + str(payload['content'] + bcolors.ENDC)
+        return str(payload['timestamp']) + bcolors.FAIL + ': ERROR: ' + str(payload['content'] + bcolors.ENDC)
 
     def parse_info(self, payload):
-        # print("info")
-        return str(payload['timestamp']) + ": " + str(payload['content'])
+        return str(payload['timestamp']) + ': ' + str(payload['content'])
 
     def parse_message(self, payload):
-        # print("msg")
-        return str(payload['timestamp']) + ": " + payload['sender'] + ": " + payload['content']
+        return bcolors.WHITE + str(payload['timestamp']) + ' ' + bcolors.ENDC + bcolors.BOLD + payload['sender'] + ': ' + bcolors.ENDC + payload['content']
 
     def parse_history(self, payload):
-        history_string = ""
+        history_string = ''
         for message in payload['content']:
-            history_string += "\n" + self.parse_message(message)
+            history_string += '\n' + self.parse_message(message)
         return history_string
 
 
@@ -62,5 +60,3 @@ if __name__ == '__main__':
     No alterations are necessary
     """
     myParser = MessageParser()
-
-    print(myParser.parse(payload="dsdsd"))
