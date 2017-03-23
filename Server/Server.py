@@ -3,10 +3,6 @@ import socketserver
 import json
 import datetime
 import re
-"""
-Variables and functions that must be used by all the ClientHandler objects
-must be written here (e.g. a dictionary for connected clients)
-"""
 
 connection_threads = []
 
@@ -46,17 +42,15 @@ messages = [
     }
 ]
 
-name_restrictions_level = 3  # TODO: not in use at this point
-
-help_text = "\n================================" \
-            "\n------------- HELP -------------" \
-            "\nAvailable commands:" \
-            "\nlogin <username>" \
-            "\nlogout" \
-            "\nmessage <message>" \
-            "\nnames   (lists all online users)" \
-            "\nhelp" \
-            "\n================================"  # TODO: finalize help_text
+help_text = '\n================================' \
+            '\n------------- HELP -------------' \
+            '\nAvailable commands:' \
+            '\nlogin <username>' \
+            '\nlogout' \
+            '\nmessage <message>' \
+            '\nnames   (lists all online users)' \
+            '\nhelp' \
+            '\n================================'
 
 
 class ClientHandler(socketserver.BaseRequestHandler):
@@ -112,7 +106,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
             else:
                 return self.possible_requests[payload['request']]()
         else:
-            raise ValueError("Invalid request")
+            raise ValueError('Invalid request')
 
     def login(self, payload):
         username = payload['content']
@@ -130,12 +124,11 @@ class ClientHandler(socketserver.BaseRequestHandler):
                     self.send_to_all('server', 'info', username + ' logged in')
                     self.send_response('server', 'history', messages)
 
-                    # DEBUG LOG:
-                    print(str(connected_users))
+                    print('Users online: ' + str(connected_users.keys()))
             else:
                 self.error('You are already logged in! \n Log out to log in with another username')
         else:
-            self.error("Username not valid, should be only a-z, A-Z, 0-9")
+            self.error('Username not valid, should be only a-z, A-Z, 0-9')
 
     def logout(self):
         username = self.validate_user()
@@ -143,8 +136,7 @@ class ClientHandler(socketserver.BaseRequestHandler):
             self.send_to_all('server', 'info', username + ' logged out')
             del connected_users[username]
 
-            # DEBUG LOG:
-            print(connected_users)
+            print('Users online: ' + str(connected_users.keys()))
         else:
             self.error('You cannot log out, as you are not logged in!!')  # TODO: will this ever be relevant?
 
@@ -202,10 +194,9 @@ class ClientHandler(socketserver.BaseRequestHandler):
             self.connection.sendall(json_data.encode('ascii'))
         except OSError as e:
             print(e)
-            print("Connection dead, removing from connection_threads!")
+            print('Connection dead, removing from connection_threads!')
             connection_threads.remove(self)
 
-        # DEBUG LOG:
         print('sending: ' + str(json_data))
 
 
@@ -218,13 +209,13 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     """
     allow_reuse_address = True
 
-if __name__ == "__main__":
-    """
-    This is the main method and is executed when you type "python Server.py"
+if __name__ == '__main__':
+    '''
+    This is the main method and is executed when you type 'python Server.py'
     in your terminal.
 
     No alterations are necessary
-    """
+    '''
 
     HOST, PORT = 'localhost', 9998
     print('Server running...')

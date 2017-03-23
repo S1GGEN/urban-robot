@@ -112,4 +112,5 @@ if __name__ == '__main__':
     No alterations are necessary
     """
 
+    # client = Client('91.192.223.73', 9998)  # Fr3dric0 server
     client = Client('localhost', 9998)  # TODO: Allow switching between servers
