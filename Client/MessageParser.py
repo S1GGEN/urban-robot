@@ -49,13 +49,10 @@ class MessageParser():
         return str(payload['timestamp']) + ": " + payload['sender'] + ": " + payload['content']
 
     def parse_history(self, payload):
-        # print("history")
-        #history_string = ""
-        #for message in payload:
-        #    history_string += "\n" + self.parse_message(message)
-        #return history_string
-        return "History " + str(payload)
-    # Include more methods for handling the different responses...
+        history_string = ""
+        for message in payload['content']:
+            history_string += "\n" + self.parse_message(message)
+        return history_string
 
 
 if __name__ == '__main__':
