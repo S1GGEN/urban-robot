@@ -42,7 +42,7 @@ class Client:
         self.help()
 
         while True:
-            time.sleep(0.01)
+            time.sleep(0.03)
 
             request = input('>>> ').lower().lstrip().rstrip()
             request_lower = request.lower()
@@ -70,7 +70,7 @@ class Client:
         parser = MessageParser()
         parsed_message = MessageParser.parse(parser, message)
         # print("--------- Received: " + str(message) + " ---------")
-        print('\t' + parsed_message)
+        print('\t' + str(parsed_message))
 
     def login(self, username):
         if username:  # Reasoning:    (message = '') would be asserted as False

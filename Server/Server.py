@@ -154,7 +154,8 @@ class ClientHandler(socketserver.BaseRequestHandler):
             messages.append({
                 'timestamp': str(datetime.datetime.today())[:-7],
                 'sender': username,
-                'message': payload['content']
+                'content': payload['content'],
+                'response': 'message'
             })
             self.send_to_all(username, 'message', payload['content'])
         else:
