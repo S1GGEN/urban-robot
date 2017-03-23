@@ -3,7 +3,6 @@ import socket
 import json
 import re
 import time
-import sys
 
 from MessageReceiver import MessageReceiver
 from MessageParser import MessageParser
@@ -32,19 +31,20 @@ class Client:
         # Initiate the connection to the server
         self.connection.connect((self.host, self.server_port))
 
-        # print("connected")
+
 
         self.message_receiver = MessageReceiver(self, self.connection)
         self.message_receiver.start()
 
         print(bcolors.HEADER + bcolors.BOLD + ' Urban Robot Advanced Chat System')
         print(' --------------------------------' + bcolors.ENDC)
+        print('You are now connected')
         self.help()
 
         while True:
-            time.sleep(0.01)
+            time.sleep(0.03)
 
-            request = input('\t>>> ').lower().lstrip().rstrip()
+            request = input('>>> ').lower().lstrip().rstrip()
             request_lower = request.lower()
 
             if re.search('^login((  *[^\s]+)|((\s)*(?!.)))', request_lower):
@@ -63,17 +63,15 @@ class Client:
                 self.help()
 
     def disconnect(self):
-        # TODO: Handle disconnection
         self.connection.close()
 
     def receive_message(self, message):
         parser = MessageParser()
         parsed_message = MessageParser.parse(parser, message)
-        # print("--------- Received: " + str(message) + " ---------")
-        print('\t' + parsed_message)
+        print(str(parsed_message))
 
     def login(self, username):
-        if username:  # Reasoning:    (message = '') would be asserted as False
+        if username:
             self.send_request('login', username)
         else:
             un = input('Enter username >> ')
@@ -105,11 +103,12 @@ class Client:
 
 if __name__ == '__main__':
 
-    """
+    '''
     This is the main method and is executed when you type "python Client.py"
     in your terminal.
 
     No alterations are necessary
-    """
+    '''
 
+    # client = Client('91.192.223.73', 9998)  # Fr3dric0 server
     client = Client('localhost', 9998)  # TODO: Allow switching between servers

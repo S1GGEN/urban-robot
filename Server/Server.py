@@ -2,10 +2,7 @@
 import socketserver
 import json
 import datetime
-"""
-Variables and functions that must be used by all the ClientHandler objects
-must be written here (e.g. a dictionary for connected clients)
-"""
+import re
 
 connection_threads = []
 
@@ -26,23 +23,34 @@ connected_users = {
 
 messages = [
     {
-      "message": "message0",
-      "sender": "user0",
-      "timestamp": "1490105373.0190203"
+        "content": "message0",
+        "sender": "user0",
+        "timestamp": "2017-03-23 00:11:28",
+        "response": "message"
     },
     {
-      "message": "message1",
-      "sender": "user1",
-      "timestamp": "1490105373.0190203"
+        "content": "message1",
+        "sender": "user1",
+        "timestamp": "2017-03-23 00:11:28",
+        "response": "message"
     },
     {
-      "message": "message2",
-      "sender": "user2",
-      "timestamp": "1490105373.0190203"
+        "content": "message2",
+        "sender": "user2",
+        "timestamp": "2017-03-23 00:11:28",
+        "response": "message"
     }
 ]
 
-help_text = "\n HERE IS SOME HELP: \n Available commands: \n login <username> \n message <message>"  # TODO: finalize help_text
+help_text = '\n================================' \
+            '\n------------- HELP -------------' \
+            '\nAvailable commands:' \
+            '\nlogin <username>' \
+            '\nlogout' \
+            '\nmessage <message>' \
+            '\nnames   (lists all online users)' \
+            '\nhelp' \
+            '\n================================'
 
 
 class ClientHandler(socketserver.BaseRequestHandler):
@@ -98,27 +106,29 @@ class ClientHandler(socketserver.BaseRequestHandler):
             else:
                 return self.possible_requests[payload['request']]()
         else:
-            raise ValueError("Invalid request")
+            raise ValueError('Invalid request')
 
     def login(self, payload):
         username = payload['content']
-        if not self.validate_user():
-            if username in connected_users:
-                self.error('Username already in use!')
+        if re.fullmatch('[^_\W]+', username):
+            if not self.validate_user():
+                if username in connected_users:
+                    self.error('Username already in use!')
+                else:
+                    user = {
+                        'ip': self.ip,
+                        'port': self.port
+                    }
+                    connected_users[username] = user
+
+                    self.send_to_all('server', 'info', username + ' logged in')
+                    self.send_response('server', 'history', messages)
+
+                    print('Users online: ' + str(connected_users.keys()))
             else:
-                user = {
-                    'ip': self.ip,
-                    'port': self.port
-                }
-                connected_users[username] = user
-
-                self.send_to_all('server', 'info', username + ' logged in')
-                self.send_response('server', 'history', messages)
-
-                # DEBUG LOG:
-                print(str(connected_users))
+                self.error('You are already logged in! \n Log out to log in with another username')
         else:
-            self.error('You are already logged in! \n Log out to log in with another username')
+            self.error('Username not valid, should be only a-z, A-Z, 0-9')
 
     def logout(self):
         username = self.validate_user()
@@ -126,15 +136,19 @@ class ClientHandler(socketserver.BaseRequestHandler):
             self.send_to_all('server', 'info', username + ' logged out')
             del connected_users[username]
 
-            # DEBUG LOG:
-            print(connected_users)
+            print('Users online: ' + str(connected_users.keys()))
         else:
             self.error('You cannot log out, as you are not logged in!!')  # TODO: will this ever be relevant?
 
     def message(self, payload):
         username = self.validate_user()
         if username:
-            messages.append({'timestamp': str(datetime.datetime.today())[:-7], 'sender': username, 'content': payload['content']})
+            messages.append({
+                'timestamp': str(datetime.datetime.today())[:-7],
+                'sender': username,
+                'content': payload['content'],
+                'response': 'message'
+            })
             self.send_to_all(username, 'message', payload['content'])
         else:
             self.error('You cannot send messages, as you are not logged in!')
@@ -180,10 +194,9 @@ class ClientHandler(socketserver.BaseRequestHandler):
             self.connection.sendall(json_data.encode('ascii'))
         except OSError as e:
             print(e)
-            print("Connection dead, removing from connection_threads!")
+            print('Connection dead, removing from connection_threads!')
             connection_threads.remove(self)
 
-        # DEBUG LOG:
         print('sending: ' + str(json_data))
 
 
@@ -196,13 +209,13 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     """
     allow_reuse_address = True
 
-if __name__ == "__main__":
-    """
-    This is the main method and is executed when you type "python Server.py"
+if __name__ == '__main__':
+    '''
+    This is the main method and is executed when you type 'python Server.py'
     in your terminal.
 
     No alterations are necessary
-    """
+    '''
 
     HOST, PORT = 'localhost', 9998
     print('Server running...')
