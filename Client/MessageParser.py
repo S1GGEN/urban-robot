@@ -1,5 +1,6 @@
 import json
 
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -11,6 +12,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
     WHITE = '\033[37m'
 
+
 class MessageParser():
     def __init__(self):
 
@@ -19,7 +21,6 @@ class MessageParser():
             'info': self.parse_info,
             'message': self.parse_message,
             'history': self.parse_history
-            # More key:values pairs could be needed
         }
 
     def parse(self, data):
@@ -34,8 +35,8 @@ class MessageParser():
         if payload['response'] in self.possible_responses:
             return self.possible_responses[payload['response']](payload)
         else:
-            print('ELSE?')
-            print(payload['response'])
+            print(bcolors.FAIL + 'Invalid response from server')
+            print(payload['response'] + bcolors.ENDC)
 
     def parse_error(self, payload):
         return str(payload['timestamp']) + bcolors.FAIL + ': ERROR: ' + str(payload['content'] + bcolors.ENDC)

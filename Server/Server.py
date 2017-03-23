@@ -6,41 +6,9 @@ import re
 
 connection_threads = []
 
-connected_users = {
-    'Sigurd': {
-        'ip': '127.0.0.1',
-        'port': 133769
-    },
-    'Sigurd2': {
-        'ip': '127.0.0.1',
-        'port': 420420
-    },
-    'Sigurd3': {
-        'ip': '127.0.0.1',
-        'port': 691337
-    }
-}
+connected_users = {}
 
-messages = [
-    {
-        "content": "message0",
-        "sender": "user0",
-        "timestamp": "2017-03-23 00:11:28",
-        "response": "message"
-    },
-    {
-        "content": "message1",
-        "sender": "user1",
-        "timestamp": "2017-03-23 00:11:28",
-        "response": "message"
-    },
-    {
-        "content": "message2",
-        "sender": "user2",
-        "timestamp": "2017-03-23 00:11:28",
-        "response": "message"
-    }
-]
+messages = []
 
 help_text = '\n================================' \
             '\n------------- HELP -------------' \
