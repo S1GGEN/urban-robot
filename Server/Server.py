@@ -26,23 +26,26 @@ connected_users = {
 
 messages = [
     {
-      "message": "message0",
-      "sender": "user0",
-      "timestamp": "1490105373.0190203"
+        "content": "message0",
+        "sender": "user0",
+        "timestamp": "2017-03-23 00:11:28",
+        "response": "message"
     },
     {
-      "message": "message1",
-      "sender": "user1",
-      "timestamp": "1490105373.0190203"
+        "content": "message1",
+        "sender": "user1",
+        "timestamp": "2017-03-23 00:11:28",
+        "response": "message"
     },
     {
-      "message": "message2",
-      "sender": "user2",
-      "timestamp": "1490105373.0190203"
+        "content": "message2",
+        "sender": "user2",
+        "timestamp": "2017-03-23 00:11:28",
+        "response": "message"
     }
 ]
 
-help_text = "\n HERE IS SOME HELP: \n Available commands: \n login <username> \n message <message>"  # TODO: finalize help_text
+help_text = "\nHELP: \nAvailable commands: \nlogin <username> \nmessage <message> \nlogout"  # TODO: finalize help_text
 
 
 class ClientHandler(socketserver.BaseRequestHandler):
@@ -79,6 +82,11 @@ class ClientHandler(socketserver.BaseRequestHandler):
 
         # Loop that listens for messages from the client
         while True:
+            command = input().lower().lstrip().rstrip()
+
+            if command is "namerestrictions":
+                print("Username restriction levels\n1: ascii -whitespace\n2: a-z, A-Z, 0-9, _ (\w)\n3: a-z, A-Z, 0-9")
+
             received_string = self.connection.recv(4096)
             if received_string != b'':  # TODO: Check if this really is useful at all
                 # DEBUG LOG:
@@ -134,7 +142,11 @@ class ClientHandler(socketserver.BaseRequestHandler):
     def message(self, payload):
         username = self.validate_user()
         if username:
-            messages.append({'timestamp': str(datetime.datetime.today())[:-7], 'sender': username, 'content': payload['content']})
+            messages.append({
+                'timestamp': str(datetime.datetime.today())[:-7],
+                'sender': username,
+                'message': payload['content']
+            })
             self.send_to_all(username, 'message', payload['content'])
         else:
             self.error('You cannot send messages, as you are not logged in!')
