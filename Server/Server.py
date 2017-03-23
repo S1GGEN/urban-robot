@@ -2,6 +2,7 @@
 import socketserver
 import json
 import datetime
+import re
 """
 Variables and functions that must be used by all the ClientHandler objects
 must be written here (e.g. a dictionary for connected clients)
@@ -45,7 +46,17 @@ messages = [
     }
 ]
 
-help_text = "\nHELP: \nAvailable commands: \nlogin <username> \nmessage <message> \nlogout"  # TODO: finalize help_text
+name_restrictions_level = 3  # TODO: not in use at this point
+
+help_text = "\n================================" \
+            "\n------------- HELP -------------" \
+            "\nAvailable commands:" \
+            "\nlogin <username>" \
+            "\nlogout" \
+            "\nmessage <message>" \
+            "\nnames   (lists all online users)" \
+            "\nhelp" \
+            "\n================================"  # TODO: finalize help_text
 
 
 class ClientHandler(socketserver.BaseRequestHandler):
@@ -82,11 +93,6 @@ class ClientHandler(socketserver.BaseRequestHandler):
 
         # Loop that listens for messages from the client
         while True:
-            command = input().lower().lstrip().rstrip()
-
-            if command is "namerestrictions":
-                print("Username restriction levels\n1: ascii -whitespace\n2: a-z, A-Z, 0-9, _ (\w)\n3: a-z, A-Z, 0-9")
-
             received_string = self.connection.recv(4096)
             if received_string != b'':  # TODO: Check if this really is useful at all
                 # DEBUG LOG:
@@ -110,23 +116,26 @@ class ClientHandler(socketserver.BaseRequestHandler):
 
     def login(self, payload):
         username = payload['content']
-        if not self.validate_user():
-            if username in connected_users:
-                self.error('Username already in use!')
+        if re.fullmatch('[^_\W]+', username):
+            if not self.validate_user():
+                if username in connected_users:
+                    self.error('Username already in use!')
+                else:
+                    user = {
+                        'ip': self.ip,
+                        'port': self.port
+                    }
+                    connected_users[username] = user
+
+                    self.send_to_all('server', 'info', username + ' logged in')
+                    self.send_response('server', 'history', messages)
+
+                    # DEBUG LOG:
+                    print(str(connected_users))
             else:
-                user = {
-                    'ip': self.ip,
-                    'port': self.port
-                }
-                connected_users[username] = user
-
-                self.send_to_all('server', 'info', username + ' logged in')
-                self.send_response('server', 'history', messages)
-
-                # DEBUG LOG:
-                print(str(connected_users))
+                self.error('You are already logged in! \n Log out to log in with another username')
         else:
-            self.error('You are already logged in! \n Log out to log in with another username')
+            self.error("Username not valid, should be only a-z, A-Z, 0-9")
 
     def logout(self):
         username = self.validate_user()
